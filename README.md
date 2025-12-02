@@ -1,6 +1,6 @@
 # ⚡ Fluxo | Intelligent Field Service Management
 
-[![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](fluxo-tau.vercel.app)
+[![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](https://fluxo-tau.vercel.app)
 [![Status](https://img.shields.io/badge/status-MVP%20Complete-brightgreen)](https://github.com/lautarocristiani/fluxo)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -16,7 +16,7 @@
 ## 🚀 Live Demo & Credentials
 
 Access the live application here:
-👉 **[fluxo-tau.vercel.app](fluxo-tau.vercel.app)**
+👉 **[fluxo-tau.vercel.app](https://fluxo-tau.vercel.app)**
 
 Use the **Quick Access** buttons on the login screen or these credentials:
 
