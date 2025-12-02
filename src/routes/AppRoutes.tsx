@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import AuthPage from '../features/auth/AuthPage'
 import Dashboard from '../features/dashboard/Dashboard'
+import OrderExecution from '../features/work-orders/OrderExecution'
 import { Box, CircularProgress } from '@mui/material'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -38,11 +39,19 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/auth" element={<AuthPage />} />
+      
       <Route path="/" element={
         <PrivateRoute>
           <Dashboard />
         </PrivateRoute>
       } />
+
+      <Route path="/orders/:id" element={
+        <PrivateRoute>
+          <OrderExecution />
+        </PrivateRoute>
+      } />
+      
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
