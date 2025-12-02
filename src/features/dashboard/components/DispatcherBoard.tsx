@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
 import { Box, Chip, Typography, Paper, Button } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { useWorkOrders, type WorkOrder } from '../../work-orders/hooks/useWorkOrders'
+import CreateOrderModal from '../../work-orders/components/CreateOrderModal'
 
 const columns: GridColDef[] = [
   { field: 'customer_name', headerName: 'Customer', flex: 1, minWidth: 150 },
@@ -53,7 +55,8 @@ const columns: GridColDef[] = [
 ]
 
 export default function DispatcherBoard() {
-  const { orders, loading } = useWorkOrders()
+  const { orders, loading, refetch } = useWorkOrders()
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -61,7 +64,11 @@ export default function DispatcherBoard() {
         <Typography variant="h6" color="text.secondary">
           All Operations ({orders.length})
         </Typography>
-        <Button variant="contained" startIcon={<AddIcon />}>
+        <Button 
+          variant="contained" 
+          startIcon={<AddIcon />}
+          onClick={() => setIsModalOpen(true)}
+        >
           Create Order
         </Button>
       </Box>
@@ -79,6 +86,12 @@ export default function DispatcherBoard() {
           sx={{ border: 0 }}
         />
       </Paper>
+
+      <CreateOrderModal 
+        open={isModalOpen} 
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={refetch}
+      />
     </Box>
   )
 }
