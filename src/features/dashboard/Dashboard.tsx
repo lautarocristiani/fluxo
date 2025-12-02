@@ -1,49 +1,47 @@
 import { useAuthStore } from '../../store/authStore'
-import { Box, Typography, Button, Container, Paper, Chip } from '@mui/material'
+import { Box, Typography, Button, Container, Chip } from '@mui/material'
 import LogoutIcon from '@mui/icons-material/Logout'
+import DispatcherBoard from './components/DispatcherBoard'
+import TechnicianBoard from './components/TechnicianBoard'
 
 export default function Dashboard() {
   const { profile, signOut } = useAuthStore()
 
+  const isDispatcher = profile?.role === 'dispatcher'
+
   return (
-    <Container maxWidth="lg" sx={{ mt: 4 }}>
+    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Box>
-          <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
-            Dashboard
+          <Typography variant="h4" component="h1" fontWeight="bold" color="primary.main">
+            Fluxo
           </Typography>
           <Typography variant="subtitle1" color="text.secondary">
-            Welcome, {profile?.first_name || 'User'}
+            Welcome back, {profile?.first_name || 'User'}
           </Typography>
         </Box>
+        
         <Box display="flex" gap={2} alignItems="center">
           <Chip 
             label={profile?.role?.toUpperCase()} 
-            color={profile?.role === 'dispatcher' ? 'primary' : 'success'} 
+            color={isDispatcher ? 'primary' : 'secondary'} 
             variant="outlined" 
-            size="small"
           />
           <Button 
             variant="outlined" 
             color="error" 
             onClick={signOut}
             startIcon={<LogoutIcon />}
+            size="small"
           >
             Sign Out
           </Button>
         </Box>
       </Box>
 
-      <Paper sx={{ p: 4, textAlign: 'center', border: '1px dashed #ccc' }} variant="outlined">
-        <Typography variant="h6" color="text.secondary">
-          {profile?.role === 'dispatcher' 
-            ? 'Dispatcher Operations View' 
-            : 'My Assigned Work Orders'}
-        </Typography>
-        <Typography variant="body2" color="text.disabled" sx={{ mt: 1 }}>
-          (Data tables and map components will be loaded here in the next step)
-        </Typography>
-      </Paper>
+      <Box>
+        {isDispatcher ? <DispatcherBoard /> : <TechnicianBoard />}
+      </Box>
     </Container>
   )
 }
