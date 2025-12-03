@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react'
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { Box, CircularProgress } from '@mui/material'
 import AuthPage from '../features/auth/AuthPage'
 import Dashboard from '../features/dashboard/Dashboard'
 import OrderExecution from '../features/work-orders/OrderExecution'
-import { Box, CircularProgress } from '@mui/material'
+import ProfilePage from '../features/profile/ProfilePage'
+import MainLayout from '../components/layout/MainLayout'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuthStore()
@@ -40,17 +42,15 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/auth" element={<AuthPage />} />
       
-      <Route path="/" element={
+      <Route element={
         <PrivateRoute>
-          <Dashboard />
+          <MainLayout />
         </PrivateRoute>
-      } />
-
-      <Route path="/orders/:id" element={
-        <PrivateRoute>
-          <OrderExecution />
-        </PrivateRoute>
-      } />
+      }>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/orders/:id" element={<OrderExecution />} />
+      </Route>
       
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -20,6 +20,7 @@ create table public.profiles (
   last_name text,
   role user_role default 'technician',
   avatar_url text,
+  theme_preference text not null default 'system' check (theme_preference in ('light', 'dark', 'system')),
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 

@@ -15,7 +15,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  CircularProgress
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import VisibilityIcon from '@mui/icons-material/Visibility'
@@ -30,9 +31,7 @@ export default function DispatcherBoard() {
   const { orders, loading, refetch } = useWorkOrders()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingOrder, setEditingOrder] = useState<WorkOrder | null>(null)
-  
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null)
-  
   const [tabValue, setTabValue] = useState('all')
   const navigate = useNavigate()
 
@@ -138,6 +137,14 @@ export default function DispatcherBoard() {
       }
     }
   ]
+
+  if (loading && orders.length === 0) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+        <CircularProgress />
+      </Box>
+    )
+  }
 
   return (
     <Box sx={{ width: '100%' }}>

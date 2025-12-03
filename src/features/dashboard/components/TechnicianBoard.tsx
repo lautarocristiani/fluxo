@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Box, Card, CardContent, Typography, Chip, Button, Stack, Tabs, Tab, Alert, Tooltip } from '@mui/material'
+import { Box, Card, CardContent, Typography, Chip, Button, Stack, Tabs, Tab, Alert, Tooltip, CircularProgress } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import VisibilityIcon from '@mui/icons-material/Visibility'
@@ -15,7 +15,13 @@ export default function TechnicianBoard() {
   const navigate = useNavigate()
   const [tabValue, setTabValue] = useState(0)
 
-  if (loading) return <Typography>Loading...</Typography>
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+        <CircularProgress />
+      </Box>
+    )
+  }
 
   const activeOrders = orders.filter(o => o.status === 'in_progress')
   const pendingOrders = orders.filter(o => o.status === 'pending')

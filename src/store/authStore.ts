@@ -1,14 +1,19 @@
 import { create } from 'zustand'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
+import { useThemeStore } from './themeStore'
+import type { Database } from '../types/database.types'
+
+type Profile = Database['public']['Tables']['profiles']['Row']
 
 interface AuthState {
   user: User | null
   session: Session | null
-  profile: any | null
+  profile: Profile | null
   isLoading: boolean
   isInitialized: boolean
   initializeAuth: () => Promise<void>
+  refreshProfile: () => Promise<void>
   signOut: () => Promise<void>
 }
 
@@ -25,20 +30,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const { data: { session } } = await supabase.auth.getSession()
       
-      let profile = null
+      let profileData: Profile | null = null
+
       if (session?.user) {
         const { data } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .single()
-        profile = data
+        
+        profileData = data as Profile | null
+
+        if (profileData?.theme_preference) {
+          useThemeStore.getState().setMode(profileData.theme_preference)
+        }
       }
 
       set({ 
         session, 
         user: session?.user ?? null, 
-        profile, 
+        profile: profileData, 
         isLoading: false,
         isInitialized: true 
       })
@@ -51,13 +62,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
         if (session?.user) {
           const currentProfile = get().profile
+          
           if (!currentProfile || currentProfile.id !== session.user.id) {
              const { data } = await supabase
               .from('profiles')
               .select('*')
               .eq('id', session.user.id)
               .single()
-             set({ session, user: session.user, profile: data, isLoading: false })
+             
+             const newProfile = data as Profile | null
+
+             if (newProfile?.theme_preference) {
+               useThemeStore.getState().setMode(newProfile.theme_preference)
+             }
+             
+             set({ session, user: session.user, profile: newProfile, isLoading: false })
           } else {
              set({ session, user: session.user, isLoading: false })
           }
@@ -69,13 +88,37 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
+  refreshProfile: async () => {
+    try {
+      const { session } = get()
+      if (!session?.user) return
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single()
+      
+      const updatedProfile = data as Profile | null
+      
+      if (updatedProfile) {
+        set({ profile: updatedProfile })
+        if (updatedProfile.theme_preference) {
+          useThemeStore.getState().setMode(updatedProfile.theme_preference)
+        }
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  },
+
   signOut: async () => {
     set({ session: null, user: null, profile: null })
+    useThemeStore.getState().setMode('system')
     try {
       await supabase.auth.signOut()
       localStorage.removeItem('sb-fluxo-auth-token')
     } catch (error) {
-      // Error handling intentionally suppressed for optimistic UI update
     }
   }
 }))
