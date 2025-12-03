@@ -17,6 +17,7 @@ export type Database = {
           last_name: string | null
           role: 'dispatcher' | 'technician'
           avatar_url: string | null
+          theme_preference: 'light' | 'dark' | 'system'
           created_at: string
         }
         Insert: {
@@ -26,12 +27,14 @@ export type Database = {
           last_name?: string | null
           role?: 'dispatcher' | 'technician'
           avatar_url?: string | null
+          theme_preference?: 'light' | 'dark' | 'system'
         }
         Update: {
           first_name?: string | null
           last_name?: string | null
           role?: 'dispatcher' | 'technician'
           avatar_url?: string | null
+          theme_preference?: 'light' | 'dark' | 'system'
         }
         Relationships: []
       }
