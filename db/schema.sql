@@ -111,3 +111,16 @@ create policy "Avatar images are publicly accessible"
 create policy "Anyone can upload an avatar"
   on storage.objects for insert
   with check ( bucket_id = 'avatars' and auth.role() = 'authenticated' );
+
+  -- BUCKET: WORK-EVIDENCE
+insert into storage.buckets (id, name, public) 
+values ('work-evidence', 'work-evidence', true)
+on conflict (id) do nothing;
+
+create policy "Technicians can upload evidence"
+  on storage.objects for insert
+  with check ( bucket_id = 'work-evidence' and auth.role() = 'authenticated' );
+
+create policy "Evidence is publicly accessible"
+  on storage.objects for select
+  using ( bucket_id = 'work-evidence' );

@@ -7,47 +7,75 @@ interface AuthState {
   session: Session | null
   profile: any | null
   isLoading: boolean
+  isInitialized: boolean
   initializeAuth: () => Promise<void>
   signOut: () => Promise<void>
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   session: null,
   profile: null,
   isLoading: true,
+  isInitialized: false,
 
   initializeAuth: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    
-    if (session?.user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
-        
-      set({ session, user: session.user, profile, isLoading: false })
-    } else {
-      set({ session: null, user: null, profile: null, isLoading: false })
-    }
+    if (get().isInitialized) return
 
-    supabase.auth.onAuthStateChange(async (_event, session) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      let profile = null
       if (session?.user) {
-        const { data: profile } = await supabase
+        const { data } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .single()
-        set({ session, user: session.user, profile, isLoading: false })
-      } else {
-        set({ session: null, user: null, profile: null, isLoading: false })
+        profile = data
       }
-    })
+
+      set({ 
+        session, 
+        user: session?.user ?? null, 
+        profile, 
+        isLoading: false,
+        isInitialized: true 
+      })
+
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_OUT') {
+          set({ session: null, user: null, profile: null, isLoading: false })
+          return
+        }
+
+        if (session?.user) {
+          const currentProfile = get().profile
+          if (!currentProfile || currentProfile.id !== session.user.id) {
+             const { data } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
+             set({ session, user: session.user, profile: data, isLoading: false })
+          } else {
+             set({ session, user: session.user, isLoading: false })
+          }
+        }
+      })
+
+    } catch (error) {
+      set({ isLoading: false })
+    }
   },
 
   signOut: async () => {
-    await supabase.auth.signOut()
     set({ session: null, user: null, profile: null })
+    try {
+      await supabase.auth.signOut()
+      localStorage.removeItem('sb-fluxo-auth-token')
+    } catch (error) {
+      // Error handling intentionally suppressed for optimistic UI update
+    }
   }
 }))
